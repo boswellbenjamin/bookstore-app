@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .search-form { background: #f5f5f5; padding: 20px; margin-bottom: 20px; border-radius: 5px; }
+    .search-form input, .search-form select { margin: 10px 0; padding: 8px; width: 200px; }
+    .search-form button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+    .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .book-card { border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+    .book-card h3 { margin-top: 0; font-size: 16px; }
+    .book-card .price { color: #28a745; font-weight: bold; font-size: 18px; }
+    .pagination { margin-top: 20px; text-align: center; }
+    .pagination a { padding: 8px 12px; margin: 0 5px; border: 1px solid #ddd; text-decoration: none; }
+    .pagination a.active { background: #007bff; color: white; }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="container">
+    <h1><%= title %></h1>
+
+  <!-- Search Form -->
+  <div class="search-form">
+    <form action="/books/search" method="GET">
+      <!-- TODO: Populate subjects dropdown from database -->
+      <div>
+        <label for="subject">Subject:</label>
+        <select name="subject" id="subject">
+          <option value="">All Subjects</option>
+          <% subjects.forEach(function(subject) { %>
+            <option value="<%= subject %>"><%= subject %></option>
+          <% }); %>
+        </select>
+      </div>
+
+      <!-- TODO: Implement author search (first name with LIKE) -->
+      <div>
+        <label for="author">Author (first name):</label>
+        <input type="text" name="author" id="author" placeholder="Enter first name">
+      </div>
+
+      <!-- TODO: Implement title search (contains word, case-insensitive) -->
+      <div>
+        <label for="title">Title contains:</label>
+        <input type="text" name="title" id="title" placeholder="Enter keyword">
+      </div>
+
+      <button type="submit">Search</button>
+    </form>
+  </div>
+
+  <!-- Books Results -->
+  <div class="books-grid">
+    <% if (books.length === 0) { %>
+      <p>No books found. Try adjusting your search criteria.</p>
+    <% } else { %>
+      <% books.forEach(function(book) { %>
+        <div class="book-card">
+          <h3><%= book.title %></h3>
+          <p><strong>Author:</strong> <%= book.author %></p>
+          <p><strong>Subject:</strong> <%= book.subject %></p>
+          <p class="price">$<%= book.price %></p>
+
+          <!-- TODO: Implement add to cart functionality -->
+          <form action="/books/cart/add" method="POST" style="margin-top: 10px;">
+            <input type="hidden" name="book_id" value="<%= book.isbn %>">
+            <input type="number" name="quantity" value="1" min="1" max="99" style="width: 60px;">
+            <button type="submit">Add to Cart</button>
+          </form>
+        </div>
+      <% }); %>
+    <% } %>
+  </div>
+
+  <!-- Pagination -->
+  <!-- TODO: Implement pagination (5 books per page using LIMIT/OFFSET) -->
+  <% if (totalPages > 1) { %>
+    <div class="pagination">
+      <% for(let i = 1; i <= totalPages; i++) { %>
+        <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+      <% } %>
+    </div>
+  <% } %>
+
+  </div>
+</body>
+</html>
