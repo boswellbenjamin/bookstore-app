@@ -6,18 +6,11 @@ var logger = require('morgan');
 
 // Database setup
 require('dotenv').config();
-const mysql = require('mysql2/promise');
-
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME
-});
+const pool = require('./db');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var booksRouter = require('./routes/books');
 
 var app = express();
 
@@ -45,6 +38,7 @@ app.get('/test-db', async (req, res) => {
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/books', booksRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
