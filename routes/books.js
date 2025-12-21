@@ -1,9 +1,9 @@
-var express = require('express');
-var router = express.Router();
+import express from 'express';
+const router = express.Router();
 
-const booksController = require('../controllers/booksController');
-const cartController = require('../controllers/cartController');
-const checkoutController = require('../controllers/checkout');
+import * as booksController from '../controllers/booksController.js';
+import * as cartController from '../controllers/cartController.js';
+import * as checkoutController from '../controllers/checkout.js';
 
 router.get('/search', booksController.searchBooks);
 
@@ -15,4 +15,4 @@ router.post('/cart/remove', cartController.removeFromCart);
 router.post('/checkout', checkoutController.processCheckout);
 router.get('/invoice/:orderId', checkoutController.viewInvoice);
 
-module.exports = router;
+export default router;

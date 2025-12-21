@@ -1,4 +1,4 @@
-const pool = require('../db');
+import pool from '../db.js';
 
 /*
  * Checkout (2.4)
@@ -8,7 +8,7 @@ const pool = require('../db');
  * - Display invoice with delivery date (+7 days)
  * - Clear cart after checkout
  */
-exports.processCheckout = async (req, res, next) => {
+export const processCheckout = async (req, res, next) => {
   let connection;
 
   try {
@@ -92,7 +92,7 @@ exports.processCheckout = async (req, res, next) => {
  * View Invoice (2.4)
  * Display order details after checkout
  */
-exports.viewInvoice = async (req, res, next) => {
+export const viewInvoice = async (req, res, next) => {
   try {
     // TODO: Get orderId from params
     // const { orderId } = req.params;

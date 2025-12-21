@@ -1,4 +1,4 @@
-const pool = require('../db');
+import pool from '../db.js';
 
 /*
  * Add to Cart (2.3)
@@ -7,7 +7,7 @@ const pool = require('../db');
  * - Update quantity if book already exists in cart
  * - Associate with user session
  */
-exports.addToCart = async (req, res, next) => {
+export const addToCart = async (req, res, next) => {
   try {
     // TODO: Get book_id and quantity from request body
     // const { book_id, quantity = 1 } = req.body;
@@ -47,7 +47,7 @@ exports.addToCart = async (req, res, next) => {
  * - Calculate total per item (price * quantity)
  * - Calculate grand total
  */
-exports.viewCart = async (req, res, next) => {
+export const viewCart = async (req, res, next) => {
   try {
     // TODO: Get user_id from session
     // const member_id = req.session.userId;
@@ -86,7 +86,7 @@ exports.viewCart = async (req, res, next) => {
  * Update Cart Quantity
  * Optional: Allow users to update quantities from cart page
  */
-exports.updateCart = async (req, res, next) => {
+export const updateCart = async (req, res, next) => {
   try {
     // TODO: Get cart_id and new quantity from request body
     // const { cart_id, quantity } = req.body;
@@ -107,7 +107,7 @@ exports.updateCart = async (req, res, next) => {
  * Remove from Cart
  * Optional: Allow users to remove items from cart
  */
-exports.removeFromCart = async (req, res, next) => {
+export const removeFromCart = async (req, res, next) => {
   try {
     // TODO: Get cart_id from request body
     // const { cart_id } = req.body;

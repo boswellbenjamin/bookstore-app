@@ -1,4 +1,4 @@
-const pool = require('../db');
+import pool from '../db.js';
 
 /*
  * Search Books (2.3)
@@ -8,7 +8,7 @@ const pool = require('../db');
  * - Title search (contains word, case-insensitive)
  * - Pagination (5 books per page using LIMIT/OFFSET)
  */
-exports.searchBooks = async (req, res, next) => {
+export const searchBooks = async (req, res, next) => {
   try {
     // TODO: Get search parameters from query string
     // const { subject, author, title, page = 1 } = req.query;
