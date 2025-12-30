@@ -31,8 +31,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-app.use(session({ secret: "secret", resave: false, saveUninitialized: true }));
+app.use(
+  session({
+    secret: "secret-key-change-this-in-production",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }, // false on HTTP, true on HTTPS
+  })
+);
 app.use(flash());
+
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+  if (req.session.user) {
+    return next();
+  }
+  res.redirect("/login");
+};
 
 // Test database connection
 app.get("/test-db", async (req, res) => {
@@ -46,11 +61,12 @@ app.get("/test-db", async (req, res) => {
   }
 });
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
-app.use("/books", booksRouter);
 app.use("/register", registerRouter);
 app.use("/login", loginRouter);
+
+app.use("/", requireAuth, indexRouter);
+app.use("/users", requireAuth, usersRouter);
+app.use("/books", requireAuth, booksRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

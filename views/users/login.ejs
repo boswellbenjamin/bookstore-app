@@ -110,6 +110,13 @@
             margin-bottom: 20px;
             font-weight: bold;
         }
+
+        .error-message {
+            color: #d32f2f;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -120,85 +127,90 @@
                 <%= message %>
             </p>
             <% } %>
-                <div class="login-container">
-                    <h1>Login</h1>
-                    <form id="loginForm">
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" id="email" name="email" required>
-                            <div class="error" id="emailError"></div>
+                <% if (typeof error !=='undefined' ) { %>
+                    <p class="error-message">
+                        <%= error %>
+                    </p>
+                    <% } %>
+                        <div class="login-container">
+                            <h1>Login</h1>
+                            <form id="loginForm">
+                                <div class="form-group">
+                                    <label for="email">Email:</label>
+                                    <input type="email" id="email" name="email" required>
+                                    <div class="error" id="emailError"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password:</label>
+                                    <input type="password" id="password" name="password" required>
+                                    <div class="error" id="passwordError"></div>
+                                </div>
+                                <div class="buttons">
+                                    <button class="button" type="submit">Login</button>
+                                    <a href="/register" class="button">Don't have an account? Register here</a>
+                                </div>
+                            </form>
                         </div>
-                        <div class="form-group">
-                            <label for="password">Password:</label>
-                            <input type="password" id="password" name="password" required>
-                            <div class="error" id="passwordError"></div>
-                        </div>
-                        <div class="buttons">
-                            <button class="button" type="submit">Login</button>
-                            <a href="/register" class="button">Don't have an account? Register here</a>
-                        </div>
-                    </form>
-                </div>
 
-                <script>
-                    const form = document.getElementById('loginForm');
-                    const emailInput = document.getElementById('email');
-                    const passwordInput = document.getElementById('password');
-                    const emailError = document.getElementById('emailError');
-                    const passwordError = document.getElementById('passwordError');
+                        <script>
+                            const form = document.getElementById('loginForm');
+                            const emailInput = document.getElementById('email');
+                            const passwordInput = document.getElementById('password');
+                            const emailError = document.getElementById('emailError');
+                            const passwordError = document.getElementById('passwordError');
 
-                    const validateEmail = (email) => {
-                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        return emailRegex.test(email);
-                    };
+                            const validateEmail = (email) => {
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                return emailRegex.test(email);
+                            };
 
-                    const validatePassword = (password) => {
-                        return password.length >= 6;
-                    };
+                            const validatePassword = (password) => {
+                                return password.length >= 6;
+                            };
 
-                    const clearErrors = () => {
-                        emailError.style.display = 'none';
-                        passwordError.style.display = 'none';
-                        emailInput.classList.remove('invalid');
-                        passwordInput.classList.remove('invalid');
-                    };
+                            const clearErrors = () => {
+                                emailError.style.display = 'none';
+                                passwordError.style.display = 'none';
+                                emailInput.classList.remove('invalid');
+                                passwordInput.classList.remove('invalid');
+                            };
 
-                    const showError = (input, errorElement, message) => {
-                        input.classList.add('invalid');
-                        errorElement.textContent = message;
-                        errorElement.style.display = 'block';
-                    };
+                            const showError = (input, errorElement, message) => {
+                                input.classList.add('invalid');
+                                errorElement.textContent = message;
+                                errorElement.style.display = 'block';
+                            };
 
-                    form.addEventListener('submit', (e) => {
-                        e.preventDefault();
-                        clearErrors();
+                            form.addEventListener('submit', (e) => {
+                                e.preventDefault();
+                                clearErrors();
 
-                        const email = emailInput.value.trim();
-                        const password = passwordInput.value;
+                                const email = emailInput.value.trim();
+                                const password = passwordInput.value;
 
-                        let isValid = true;
+                                let isValid = true;
 
-                        if (!email) {
-                            showError(emailInput, emailError, 'Email is required');
-                            isValid = false;
-                        } else if (!validateEmail(email)) {
-                            showError(emailInput, emailError, 'Please enter a valid email');
-                            isValid = false;
-                        }
+                                if (!email) {
+                                    showError(emailInput, emailError, 'Email is required');
+                                    isValid = false;
+                                } else if (!validateEmail(email)) {
+                                    showError(emailInput, emailError, 'Please enter a valid email');
+                                    isValid = false;
+                                }
 
-                        if (!password) {
-                            showError(passwordInput, passwordError, 'Password is required');
-                            isValid = false;
-                        } else if (!validatePassword(password)) {
-                            showError(passwordInput, passwordError, 'Password must be at least 6 characters');
-                            isValid = false;
-                        }
+                                if (!password) {
+                                    showError(passwordInput, passwordError, 'Password is required');
+                                    isValid = false;
+                                } else if (!validatePassword(password)) {
+                                    showError(passwordInput, passwordError, 'Password must be at least 6 characters');
+                                    isValid = false;
+                                }
 
-                        if (isValid) {
-                            form.submit();
-                        }
-                    });
-                </script>
+                                if (isValid) {
+                                    form.submit();
+                                }
+                            });
+                        </script>
 </body>
 
 </html>
