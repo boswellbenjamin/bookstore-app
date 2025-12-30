@@ -73,7 +73,7 @@
             border-color: #d32f2f;
         }
 
-        button {
+        .button {
             width: 100%;
             padding: 12px;
             background-color: #4CAF50;
@@ -86,8 +86,22 @@
             margin-top: 10px;
         }
 
-        button:hover {
+        .buttons a {
+            text-decoration: none;
+            text-align: center;
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+
+        .button:hover {
             background-color: #45a049;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
         }
 
         .success-message {
@@ -119,7 +133,10 @@
                             <input type="password" id="password" name="password" required>
                             <div class="error" id="passwordError"></div>
                         </div>
-                        <button type="submit">Login</button>
+                        <div class="buttons">
+                            <button class="button" type="submit">Login</button>
+                            <a href="/register" class="button">Don't have an account? Register here</a>
+                        </div>
                     </form>
                 </div>
 
