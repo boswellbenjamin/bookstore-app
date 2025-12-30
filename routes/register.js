@@ -1,6 +1,12 @@
 import express from "express";
 import * as registerController from "../controllers/registerController.js";
+import flash from "connect-flash";
 const router = express.Router();
+
+router.get("/success", (req, res, next) => {
+  req.flash("success", "Account created successfully.");
+  res.redirect("/login");
+});
 
 router.get("/", (req, res, next) => {
   res.render("users/register");
@@ -36,7 +42,7 @@ router.post("/", async (req, res, next) => {
       email,
       hashedPassword
     );
-    res.redirect("/login");
+    res.redirect("/register/success");
   } catch (error) {
     next(error);
   }

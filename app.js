@@ -4,6 +4,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
+import flash from "connect-flash";
+import session from "express-session";
 
 // Database setup
 import "dotenv/config";
@@ -29,6 +31,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(session({ secret: "secret", resave: false, saveUninitialized: true }));
+app.use(flash());
 
 // Test database connection
 app.get("/test-db", async (req, res) => {
