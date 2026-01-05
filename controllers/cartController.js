@@ -33,6 +33,18 @@ export async function viewCart(req, res, next) {
   }
 }
 
+export async function removeFromCart(req, res, next) {
+  try {
+    const {  isbn } = req.body;
+    const userId = req.session.user.id;
+
+    await cartModel.removeFromCart(userId, isbn);
+    res.redirect('/books/cart');
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function updateCart(req, res, next) {
   try {
     const { cart_id, quantity } = req.body;
