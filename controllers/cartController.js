@@ -1,4 +1,3 @@
-import pool from '../db.js';
 import cartModel from '../models/cartModel.js';
 
 export async function addToCart(req, res, next) {
@@ -47,9 +46,10 @@ export async function removeFromCart(req, res, next) {
 
 export async function updateCart(req, res, next) {
   try {
-    const { cart_id, quantity } = req.body;
+    const { isbn, quantity } = req.body;
+    const userId = req.session.user.id;
 
-    await cartModel.updateCartQuantity(cart_id, quantity);
+    await cartModel.updateCartQuantity(userId, isbn, quantity);
     res.redirect('/books/cart');
   } catch (error) {
     next(error);
