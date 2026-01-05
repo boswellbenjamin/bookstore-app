@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        .error {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        input.invalid {
+            border-color: #d32f2f;
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .buttons a {
+            text-decoration: none;
+            text-align: center;
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .success-message {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <% if (message) { %>
+            <p class="success-message">
+                <%= message %>
+            </p>
+            <% } %>
+                <% if (typeof error !=='undefined' ) { %>
+                    <p class="error-message">
+                        <%= error %>
+                    </p>
+                    <% } %>
+                        <div class="login-container">
+                            <h1>Login</h1>
+                            <form id="loginForm" method="POST" action="/login">
+                                <div class="form-group">
+                                    <label for="email">Email:</label>
+                                    <input type="email" id="email" name="email" required>
+                                    <div class="error" id="emailError"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password:</label>
+                                    <input type="password" id="password" name="password" required>
+                                    <div class="error" id="passwordError"></div>
+                                </div>
+                                <div class="buttons">
+                                    <button class="button" type="submit">Login</button>
+                                    <a href="/register" class="button">Don't have an account? Register here</a>
+                                </div>
+                            </form>
+                        </div>
+
+                        <script>
+                            const form = document.getElementById('loginForm');
+                            const emailInput = document.getElementById('email');
+                            const passwordInput = document.getElementById('password');
+                            const emailError = document.getElementById('emailError');
+                            const passwordError = document.getElementById('passwordError');
+
+                            const validateEmail = (email) => {
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                return emailRegex.test(email);
+                            };
+
+                            const validatePassword = (password) => {
+                                return password.length >= 6;
+                            };
+
+                            const clearErrors = () => {
+                                emailError.style.display = 'none';
+                                passwordError.style.display = 'none';
+                                emailInput.classList.remove('invalid');
+                                passwordInput.classList.remove('invalid');
+                            };
+
+                            const showError = (input, errorElement, message) => {
+                                input.classList.add('invalid');
+                                errorElement.textContent = message;
+                                errorElement.style.display = 'block';
+                            };
+
+                            form.addEventListener('submit', (e) => {
+                                e.preventDefault();
+                                clearErrors();
+
+                                const email = emailInput.value.trim();
+                                const password = passwordInput.value;
+
+                                let isValid = true;
+
+                                if (!email) {
+                                    showError(emailInput, emailError, 'Email is required');
+                                    isValid = false;
+                                } else if (!validateEmail(email)) {
+                                    showError(emailInput, emailError, 'Please enter a valid email');
+                                    isValid = false;
+                                }
+
+                                if (!password) {
+                                    showError(passwordInput, passwordError, 'Password is required');
+                                    isValid = false;
+                                } else if (!validatePassword(password)) {
+                                    showError(passwordInput, passwordError, 'Password must be at least 6 characters');
+                                    isValid = false;
+                                }
+
+                                if (isValid) {
+                                    form.submit();
+                                }
+                            });
+                        </script>
+</body>
+
+</html>
