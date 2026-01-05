@@ -1,151 +1,140 @@
 import pool from '../db.js';
 
-/*
- * Checkout (2.4)
- * Features to implement:
- * - Create order in orders table
- * - Insert items into odetails table
- * - Display invoice with delivery date (+7 days)
- * - Clear cart after checkout
- */
-export const processCheckout = async (req, res, next) => {
+export async function processCheckout(req, res, next) {
   let connection;
 
   try {
-    // TODO: Get user_id from session
-    // const member_id = req.session.userId;
+    const userId = req.session.user.id;
 
-    // TODO: Start a transaction
-    // connection = await pool.getConnection();
-    // await connection.beginTransaction();
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
 
-    // TODO: Get all cart items for user
-    // const [cartItems] = await connection.execute(`
-    //   SELECT
-    //     cart.cart_id,
-    //     cart.book_id,
-    //     cart.quantity,
-    //     books.price
-    //   FROM cart
-    //   JOIN books ON cart.book_id = books.isbn
-    //   WHERE cart.member_id = ?
-    // `, [member_id]);
+    const [cartItems] = await connection.execute(`
+      SELECT
+        cart.userId,
+        cart.isbn as book_id,
+        cart.qty as quantity,
+        books.price
+      FROM cart
+      JOIN books ON cart.isbn = books.isbn
+      WHERE cart.userId = ?
+    `, [userId]);
 
-    // TODO: Check if cart is empty
-    // if (cartItems.length === 0) {
-    //   await connection.rollback();
-    //   return res.redirect('/books/cart');
-    // }
+    if (cartItems.length === 0) {
+      await connection.rollback();
+      return res.redirect('/books/cart');
+    }
 
-    // TODO: Calculate order total
-    // let totalAmount = 0;
-    // cartItems.forEach(item => {
-    //   totalAmount += item.price * item.quantity;
-    // });
+    let totalAmount = 0;
+    cartItems.forEach(item => {
+      totalAmount += item.price * item.quantity;
+    });
 
-    // TODO: INSERT into orders table
-    // const receivedDate = new Date();
-    // const deliveredDate = new Date();
-    // deliveredDate.setDate(deliveredDate.getDate() + 7); // +7 days
-    //
-    // const [orderResult] = await connection.execute(
-    //   'INSERT INTO orders (member_id, received, delivered, total_amount) VALUES (?, ?, ?, ?)',
-    //   [member_id, receivedDate, deliveredDate, totalAmount]
-    // );
+    const receivedDate = new Date();
+    const deliveredDate = new Date();
+    deliveredDate.setDate(receivedDate.getDate() + 7);
 
-    // TODO: Get the order_id from INSERT
-    // const orderId = orderResult.insertId;
+    // Get user's shipping address from members table
+    const [members] = await connection.execute(
+      'SELECT address, city, zip FROM members WHERE userId = ?',
+      [userId]
+    );
+    const member = members[0];
 
-    // TODO: INSERT each cart item into odetails table
-    // for (const item of cartItems) {
-    //   await connection.execute(
-    //     'INSERT INTO odetails (order_id, book_id, quantity, price) VALUES (?, ?, ?, ?)',
-    //     [orderId, item.book_id, item.quantity, item.price]
-    //   );
-    // }
+    const [orderResult] = await connection.execute(
+      'INSERT INTO orders (userId, received, shipAddress, shipCity, shipZip) VALUES (?, ?, ?, ?, ?)',
+      [userId, receivedDate, member.address, member.city, member.zip]
+    );
 
-    // TODO: DELETE all items from cart for user
-    // await connection.execute('DELETE FROM cart WHERE member_id = ?', [member_id]);
+    const orderId = orderResult.insertId;
 
-    // TODO: Commit transaction
-    // await connection.commit();
+    for (const item of cartItems) {
+      await connection.execute(
+        'INSERT INTO odetails (ono, isbn, qty, price) VALUES (?, ?, ?, ?)',
+        [orderId, item.book_id, item.quantity, item.price]
+      );
+    }
 
-    // TODO: Redirect to invoice page with order_id
-    // res.redirect(`/books/invoice/${orderId}`);
+    await connection.execute(
+      'DELETE FROM cart WHERE userId = ?',
+      [userId]
+    );
 
-    res.redirect('/books/cart');
+    await connection.commit();
+    res.redirect(`/books/invoice/${orderId}`);
   } catch (error) {
-    // TODO: Rollback transaction on error
-    // if (connection) {
-    //   await connection.rollback();
-    // }
+    if (connection) {
+      await connection.rollback();
+    }
     next(error);
   } finally {
-    // Release connection back to pool
-    // if (connection) {
-    //   connection.release();
-    // }
+    if (connection) {
+      connection.release();
+    }
   }
-};
+}
 
-/*
- * View Invoice (2.4)
- * Display order details after checkout
- */
-export const viewInvoice = async (req, res, next) => {
+export async function viewInvoice(req, res, next) {
   try {
-    // TODO: Get orderId from params
-    // const { orderId } = req.params;
+    const { orderId } = req.params;
 
-    // TODO: Query order details
-    // const [orders] = await pool.execute(
-    //   'SELECT * FROM orders WHERE order_id = ?',
-    //   [orderId]
-    // );
+    const [orderRows] = await pool.execute(`
+      SELECT * FROM orders WHERE ono = ?
+    `, [orderId]);
 
-    // TODO: Check if order exists
-    // if (orders.length === 0) {
-    //   return res.status(404).send('Order not found');
-    // }
-    // const order = orders[0];
+    if (orderRows.length === 0) {
+      return res.status(404).send('Order not found');
+    }
 
-    // TODO: Query order items with book details
-    // const [orderItems] = await pool.execute(`
-    //   SELECT
-    //     odetails.quantity,
-    //     odetails.price,
-    //     books.title,
-    //     books.author
-    //   FROM odetails
-    //   JOIN books ON odetails.book_id = books.isbn
-    //   WHERE odetails.order_id = ?
-    // `, [orderId]);
+    const order = orderRows[0];
 
-    // TODO: Get customer information from members table
-    // const [members] = await pool.execute(
-    //   'SELECT fname, lname, email, phone, address, city, zip FROM members WHERE member_id = ?',
-    //   [order.member_id]
-    // );
-    // const customer = members[0];
+    const [orderItems] = await pool.execute(`
+      SELECT
+        odetails.qty as quantity,
+        odetails.price,
+        books.title,
+        books.author
+      FROM odetails
+      JOIN books ON odetails.isbn = books.isbn
+      WHERE odetails.ono = ?
+    `, [orderId]);
 
-    // TODO: Combine order and customer data
-    // const orderWithCustomer = {
-    //   ...order,
-    //   customer_name: `${customer.fname} ${customer.lname}`,
-    //   customer_email: customer.email,
-    //   customer_phone: customer.phone,
-    //   customer_address: customer.address,
-    //   customer_city: customer.city,
-    //   customer_zip: customer.zip
-    // };
+    const [members] = await pool.execute(`
+      SELECT fname, lname, email, phone, address, city, zip FROM members WHERE userId = ?`,
+      [order.userId]
+    );
+    const member = members[0];
+
+    // Calculate total amount from order items
+    let totalAmount = 0;
+    orderItems.forEach(item => {
+      totalAmount += item.price * item.quantity;
+    });
+
+    // Calculate delivery date (7 days after received date)
+    const deliveryDate = new Date(order.received);
+    deliveryDate.setDate(deliveryDate.getDate() + 7);
+
+    const orderWithCustomer = {
+      order_id: order.ono,
+      received_date: order.received,
+      delivered_date: deliveryDate,
+      total_amount: totalAmount,
+      customer_name: `${member.fname} ${member.lname}`,
+      customer_email: member.email,
+      customer_phone: member.phone,
+      customer_address: order.shipAddress,
+      customer_city: order.shipCity,
+      customer_zip: order.shipZip
+    };
 
     res.render('books/invoice', {
-      title: 'Invoice',
-      order: {},
-      orderItems: [],
-      deliveryDate: null
+      title: 'Order Invoice',
+      order: orderWithCustomer,
+      orderItems: orderItems,
+      deliveryDate: deliveryDate
     });
   } catch (error) {
     next(error);
   }
-};
+}

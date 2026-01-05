@@ -1,122 +1,57 @@
-import pool from '../db.js';
+import cartModel from '../models/cartModel.js';
 
-/*
- * Add to Cart (2.3)
- * Features to implement:
- * - Add book to cart table
- * - Update quantity if book already exists in cart
- * - Associate with user session
- */
-export const addToCart = async (req, res, next) => {
+export async function addToCart(req, res, next) {
   try {
-    // TODO: Get book_id and quantity from request body
-    // const { book_id, quantity = 1 } = req.body;
+    const {  book_id, quantity } = req.body;
+    const userId = req.session.user.id;
 
-    // TODO: Get user_id from session (once auth is implemented)
-    // const member_id = req.session.userId;
-
-    // TODO: Check if book already in cart
-    // const [existing] = await pool.execute(
-    //   'SELECT * FROM cart WHERE member_id = ? AND book_id = ?',
-    //   [member_id, book_id]
-    // );
-
-    // TODO: If yes, UPDATE quantity; if no, INSERT new row
-    // if (existing.length > 0) {
-    //   await pool.execute(
-    //     'UPDATE cart SET quantity = quantity + ? WHERE cart_id = ?',
-    //     [quantity, existing[0].cart_id]
-    //   );
-    // } else {
-    //   await pool.execute(
-    //     'INSERT INTO cart (member_id, book_id, quantity) VALUES (?, ?, ?)',
-    //     [member_id, book_id, quantity]
-    //   );
-    // }
-
+    await cartModel.addToCart(userId, book_id, quantity);
     res.redirect('/books/cart');
   } catch (error) {
     next(error);
   }
-};
+}
 
-/*
- * View Cart (2.4)
- * Features to implement:
- * - Display cart items with book details (JOIN cart and books tables)
- * - Calculate total per item (price * quantity)
- * - Calculate grand total
- */
-export const viewCart = async (req, res, next) => {
+export async function viewCart(req, res, next) {
   try {
-    // TODO: Get user_id from session
-    // const member_id = req.session.userId;
+    const userId = req.session.user.id;
+    const cartItems = await cartModel.getCartItems(userId);
 
-    // TODO: Query cart items with book details
-    // const [cartItems] = await pool.execute(`
-    //   SELECT
-    //     cart.cart_id,
-    //     cart.quantity,
-    //     books.isbn,
-    //     books.title,
-    //     books.author,
-    //     books.price
-    //   FROM cart
-    //   JOIN books ON cart.book_id = books.isbn
-    //   WHERE cart.member_id = ?
-    // `, [member_id]);
-
-    // TODO: Calculate grand total
-    // let grandTotal = 0;
-    // cartItems.forEach(item => {
-    //   grandTotal += item.price * item.quantity;
-    // });
+    let grandTotal = 0;
+    cartItems.forEach(item => {
+      grandTotal += item.price * item.quantity;
+    });
 
     res.render('books/cart', {
-      title: 'Shopping Cart',
-      cartItems: [],
-      grandTotal: 0
+      title: 'Your Shopping Cart',
+      cartItems: cartItems,
+      grandTotal: grandTotal
     });
   } catch (error) {
     next(error);
   }
-};
+}
 
-/*
- * Update Cart Quantity
- * Optional: Allow users to update quantities from cart page
- */
-export const updateCart = async (req, res, next) => {
+export async function removeFromCart(req, res, next) {
   try {
-    // TODO: Get cart_id and new quantity from request body
-    // const { cart_id, quantity } = req.body;
+    const {  isbn } = req.body;
+    const userId = req.session.user.id;
 
-    // TODO: UPDATE cart SET quantity = ? WHERE cart_id = ?
-    // await pool.execute(
-    //   'UPDATE cart SET quantity = ? WHERE cart_id = ?',
-    //   [quantity, cart_id]
-    // );
-
+    await cartModel.removeFromCart(userId, isbn);
     res.redirect('/books/cart');
   } catch (error) {
     next(error);
   }
-};
+}
 
-/*
- * Remove from Cart
- * Optional: Allow users to remove items from cart
- */
-export const removeFromCart = async (req, res, next) => {
+export async function updateCart(req, res, next) {
   try {
-    // TODO: Get cart_id from request body
-    // const { cart_id } = req.body;
+    const { isbn, quantity } = req.body;
+    const userId = req.session.user.id;
 
-    // TODO: DELETE FROM cart WHERE cart_id = ?
-    // await pool.execute('DELETE FROM cart WHERE cart_id = ?', [cart_id]);
-
+    await cartModel.updateCartQuantity(userId, isbn, quantity);
     res.redirect('/books/cart');
   } catch (error) {
     next(error);
   }
-};
+}

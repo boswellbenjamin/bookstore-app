@@ -2,19 +2,33 @@
 <html>
   <head>
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <style>
-      body { margin: 0; padding: 0; }
-      .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    </style>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
   </head>
   <body>
     <%- include('partials/navbar') %>
     <div class="container">
-      <section class="hero">
-        <h1>Welcome to Our Bookstore</h1>
-        <p>Discover your next favorite book</p>
-      </section>
+      <div class="hero">
+        <h1>Find Your Next Book</h1>
+        <p>Browse our collection of books across all genres</p>
+        <a href="/books/search" class="cta-button">Browse Books</a>
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <h3>Wide Selection</h3>
+          <p>Thousands of titles across every genre</p>
+        </div>
+
+        <div class="feature">
+          <h3>Easy Search</h3>
+          <p>Find books by title, author, or genre</p>
+        </div>
+
+        <div class="feature">
+          <h3>Shopping Cart</h3>
+          <p>Add books and checkout when ready</p>
+        </div>
+      </div>
     </div>
   </body>
 </html>
