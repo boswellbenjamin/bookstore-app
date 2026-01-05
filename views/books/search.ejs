@@ -2,20 +2,7 @@
 <html>
 <head>
   <title><%= title %></title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .search-form { background: #f5f5f5; padding: 20px; margin-bottom: 20px; border-radius: 5px; }
-    .search-form input, .search-form select { margin: 10px 0; padding: 8px; width: 200px; }
-    .search-form button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
-    .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-    .book-card { border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
-    .book-card h3 { margin-top: 0; font-size: 16px; }
-    .book-card .price { color: #28a745; font-weight: bold; font-size: 18px; }
-    .pagination { margin-top: 20px; text-align: center; }
-    .pagination a { padding: 8px 12px; margin: 0 5px; border: 1px solid #ddd; text-decoration: none; }
-    .pagination a.active { background: #007bff; color: white; }
-  </style>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
 </head>
 <body>
   <%- include('../partials/navbar') %>
@@ -23,10 +10,8 @@
   <div class="container">
     <h1><%= title %></h1>
 
-  <!-- Search Form -->
   <div class="search-form">
     <form action="/books/search" method="GET">
-      <!-- TODO: Populate subjects dropdown from database -->
       <div>
         <label for="subject">Subject:</label>
         <select name="subject" id="subject">
@@ -37,13 +22,11 @@
         </select>
       </div>
 
-      <!-- TODO: Implement author search (first name with LIKE) -->
       <div>
         <label for="author">Author (first name):</label>
         <input type="text" name="author" id="author" placeholder="Enter first name">
       </div>
 
-      <!-- TODO: Implement title search (contains word, case-insensitive) -->
       <div>
         <label for="title">Title contains:</label>
         <input type="text" name="title" id="title" placeholder="Enter keyword">
@@ -53,7 +36,6 @@
     </form>
   </div>
 
-  <!-- Books Results -->
   <div class="books-grid">
     <% if (books.length === 0) { %>
       <p>No books found. Try adjusting your search criteria.</p>
@@ -65,10 +47,9 @@
           <p><strong>Subject:</strong> <%= book.subject %></p>
           <p class="price">$<%= book.price %></p>
 
-          <!-- TODO: Implement add to cart functionality -->
-          <form action="/books/cart/add" method="POST" style="margin-top: 10px;">
+          <form action="/books/cart/add" method="POST" class="inline-form">
             <input type="hidden" name="book_id" value="<%= book.isbn %>">
-            <input type="number" name="quantity" value="1" min="1" max="99" style="width: 60px;">
+            <input type="number" name="quantity" value="1" min="1" max="99" class="quantity-input">
             <button type="submit">Add to Cart</button>
           </form>
         </div>
@@ -76,12 +57,37 @@
     <% } %>
   </div>
 
-  <!-- Pagination -->
-  <!-- TODO: Implement pagination (5 books per page using LIMIT/OFFSET) -->
   <% if (totalPages > 1) { %>
     <div class="pagination">
-      <% for(let i = 1; i <= totalPages; i++) { %>
-        <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+      <% if (currentPage > 1) { %>
+        <a href="?page=<%= currentPage - 1 %>&subject=<%= subject || '' %>&author=<%= author || '' %>&title=<%= title || '' %>">Previous</a>
+      <% } %>
+
+      <% if (currentPage > 3) { %>
+        <a href="?page=1&subject=<%= subject || '' %>&author=<%= author || '' %>&title=<%= title || '' %>">1</a>
+        <% if (currentPage > 4) { %>
+          <span>...</span>
+        <% } %>
+      <% } %>
+
+      <%
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+        for(let i = startPage; i <= endPage; i++) {
+      %>
+        <a href="?page=<%= i %>&subject=<%= subject || '' %>&author=<%= author || '' %>&title=<%= title || '' %>"
+           class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+      <% } %>
+
+      <% if (currentPage < totalPages - 2) { %>
+        <% if (currentPage < totalPages - 3) { %>
+          <span>...</span>
+        <% } %>
+        <a href="?page=<%= totalPages %>&subject=<%= subject || '' %>&author=<%= author || '' %>&title=<%= title || '' %>"><%= totalPages %></a>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+        <a href="?page=<%= currentPage + 1 %>&subject=<%= subject || '' %>&author=<%= author || '' %>&title=<%= title || '' %>">Next</a>
       <% } %>
     </div>
   <% } %>

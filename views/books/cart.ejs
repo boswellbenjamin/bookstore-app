@@ -2,27 +2,12 @@
 <html>
 <head>
   <title><%= title %></title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background-color: #f5f5f5; }
-    .quantity-input { width: 60px; padding: 5px; }
-    .total { text-align: right; font-weight: bold; font-size: 18px; }
-    .grand-total { background-color: #f5f5f5; font-size: 20px; }
-    .actions { margin-top: 20px; }
-    .btn { padding: 10px 20px; margin-right: 10px; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
-    .btn-primary { background: #007bff; color: white; }
-    .btn-success { background: #28a745; color: white; }
-    .btn-danger { background: #dc3545; color: white; padding: 5px 10px; font-size: 12px; }
-    .empty-cart { text-align: center; padding: 40px; }
-  </style>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
 </head>
 <body>
   <%- include('../partials/navbar') %>
 
-  <div class="container">
+  <div class="cart-container">
     <h1><%= title %></h1>
 
   <% if (cartItems.length === 0) { %>
@@ -31,8 +16,6 @@
       <a href="/books/search" class="btn btn-primary">Continue Shopping</a>
     </div>
   <% } else { %>
-    <!-- Cart Items Table -->
-    <!-- TODO: Display cart items with book details (JOIN cart and books tables) -->
     <table>
       <thead>
         <tr>
@@ -51,26 +34,22 @@
             <td><%= item.author %></td>
             <td>$<%= item.price %></td>
             <td>
-              <!-- TODO: Implement update quantity functionality -->
-              <form action="/books/cart/update" method="POST" style="display: inline;">
-                <input type="hidden" name="cart_id" value="<%= item.cart_id %>">
+              <form action="/books/cart/update" method="POST" class="inline-form">
+                <input type="hidden" name="isbn" value="<%= item.isbn %>">
                 <input type="number" name="quantity" value="<%= item.quantity %>" min="1" max="99" class="quantity-input">
-                <button type="submit" class="btn-primary" style="padding: 5px 10px; font-size: 12px;">Update</button>
+                <button type="submit" class="btn-primary">Update</button>
               </form>
             </td>
             <td>$<%= (item.price * item.quantity).toFixed(2) %></td>
             <td>
-              <!-- TODO: Implement remove from cart functionality -->
-              <form action="/books/cart/remove" method="POST" style="display: inline;">
-                <input type="hidden" name="cart_id" value="<%= item.cart_id %>">
+              <form action="/books/cart/remove" method="POST" class="inline-form">
+                <input type="hidden" name="isbn" value="<%= item.isbn %>">
                 <button type="submit" class="btn-danger">Remove</button>
               </form>
             </td>
           </tr>
         <% }); %>
 
-        <!-- Grand Total Row -->
-        <!-- TODO: Calculate grand total -->
         <tr class="grand-total">
           <td colspan="4" class="total">Grand Total:</td>
           <td colspan="2" class="total">$<%= grandTotal.toFixed(2) %></td>
@@ -78,12 +57,9 @@
       </tbody>
     </table>
 
-    <!-- Actions -->
     <div class="actions">
       <a href="/books/search" class="btn btn-primary">Continue Shopping</a>
-
-      <!-- TODO: Implement checkout functionality -->
-      <form action="/books/checkout" method="POST" style="display: inline;">
+      <form action="/books/checkout" method="POST" class="inline-form">
         <button type="submit" class="btn btn-success">Proceed to Checkout</button>
       </form>
     </div>
